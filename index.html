@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аналітичний висновок</title>
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section-title {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .section-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5em;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .subsection {
+            margin: 30px 0;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .subsection h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        .metric-change {
+            font-size: 0.9em;
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .risk-item {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-left: 5px solid;
+            transition: transform 0.3s ease;
+        }
+        
+        .risk-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .risk-critical {
+            border-left-color: #dc3545;
+        }
+        
+        .risk-high {
+            border-left-color: #fd7e14;
+        }
+        
+        .risk-medium {
+            border-left-color: #ffc107;
+        }
+        
+        .risk-low {
+            border-left-color: #28a745;
+        }
+        
+        .conclusion-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .conclusion-box h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        .conclusion-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .conclusion-box li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .conclusion-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-size: 1.5em;
+            color: #4ade80;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 АНАЛІТИЧНИЙ ВИСНОВОК</h1>
+            <p>Проект: Цифрова платформа для оренди речей та обладнання</p>
+            <p>Студент: Курильчук М.М. | ПЗ-2204 | ЧДТУ</p>
+        </div>
+        
+        <div class="content">
+            <!-- РОЗДІЛ 1 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="section-number">1</span>
+                    Порівняльний аналіз обмежень та фактичних результатів (Таблиця 4.1)
+                </h2>
+                
+                <div class="subsection">
+                    <h3>1.1. Аналіз часових показників</h3>
+                    <p>Проведемо детальне порівняння планових обмежень з фактичними результатами структури декомпозиції робіт:</p>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Планове обмеження</div>
+                            <div class="metric-value">6 міс</div>
+                            <div class="metric-change">180 днів / 1440 год</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Фактичний результат</div>
+                            <div class="metric-value">26 тиж</div>
+                            <div class="metric-change">182 дні / 1405 год</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Відхилення</div>
+                            <div class="metric-value">+2 дні</div>
+                            <div class="metric-change">-35 год (економія)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Рисунок 1 – Порівняння планових та фактичних термінів по фазах</div>
+                        <div id="timeComparisonChart"></div>
+                    </div>
+                    
+                    <p><strong>Обґрунтування:</strong></p>
+                    <ul style="padding-left: 20px; margin-top: 10px;">
+                        <li style="margin: 10px 0;">✅ <strong>Позитивний результат:</strong> Фактична тривалість проекту (26 тижнів = 182 дні) відповідає директивному терміну 6 місяців з мінімальним відхиленням +2 дні (1.1%), що знаходиться в межах припустимої похибки планування.</li>
+                        <li style="margin: 10px 0;">✅ <strong>Оптимізація трудомісткості:</strong> Загальна трудомісткість 1405 годин на 35 годин (2.4%) менша за початкову оцінку 1440 годин завдяки:
+                            <ul style="padding-left: 30px; margin-top: 5px;">
+                                <li>Паралелізації задач розробки Frontend та Mobile (тижні 12-16)</li>
+                                <li>Використання готових бібліотек та компонентів</li>
+                                <li>Відмова від надмірної документації на користь Agile-підходу</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="subsection">
+                    <h3>1.2. Аналіз фінансових показників</h3>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Початковий бюджет</div>
+                            <div class="metric-value">494 500₴</div>
+                            <div class="metric-change">Допущення з Лаби 1</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Після оптимізації</div>
+                            <div class="metric-value">456 000₴</div>
+                            <div class="metric-change">Фактичний бюджет</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Економія</div>
+                            <div class="metric-value">38 500₴</div>
+                            <div class="metric-change">-7.8% від початкового</div>
+                        </div>
+                    </div>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Категорія витрат</th>
+                                <th>План (грн)</th>
+                                <th>Факт (грн)</th>
+                                <th>Відхилення</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Зарплатний фонд</td>
+                                <td>286 000</td>
+                                <td>286 000</td>
+                                <td>0 (0%)</td>
+                                <td><span class="status-badge status-success">Відповідає</span></td>
+                            </tr>
+                            <tr>
+                                <td>Інфраструктура</td>
+                                <td>40 500</td>
+                                <td>30 300</td>
+                                <td>-10 200 (-25%)</td>
+                                <td><span class="status-badge status-success">Оптимізовано</span></td>
+                            </tr>
+                            <tr>
+                                <td>Маркетинг</td>
+                                <td>56 000</td>
+                                <td>56 000</td>
+                                <td>0 (0%)</td>
+                                <td><span class="status-badge status-success">Відповідає</span></td>
+                            </tr>
+                            <tr>
+                                <td>Юридичні</td>
+                                <td>27 000</td>
+                                <td>27 000</td>
+                                <td>0 (0%)</td>
+                                <td><span class="status-badge status-success">Відповідає</span></td>
+                            </tr>
+                            <tr>
+                                <td>Резервний фонд</td>
+                                <td>65 000</td>
+                                <td>36 700</td>
+                                <td>-28 300 (-43.5%)</td>
+                                <td><span class="status-badge status-warning">Зменшено</span></td>
+                            </tr>
+                            <tr>
+                                <td>Оренда</td>
+                                <td>20 000</td>
+                                <td>20 000</td>
+                                <td>0 (0%)</td>
+                                <td><span class="status-badge status-success">Відповідає</span></td>
+                            </tr>
+                            <tr style="font-weight: bold; background: #f8f9fa;">
+                                <td>ВСЬОГО</td>
+                                <td>494 500</td>
+                                <td>456 000</td>
+                                <td>-38 500 (-7.8%)</td>
+                                <td><span class="status-badge status-success">В межах плану</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Рисунок 2 – Структура витрат проекту (План vs Факт)</div>
+                        <div id="budgetComparisonChart"></div>
+                    </div>
+                    
+                    <p><strong>Обґрунтування:</strong></p>
+                    <ul style="padding-left: 20px; margin-top: 10px;">
+                        <li style="margin: 10px 0;">✅ <strong>Підтвердження фінансового допущення:</strong> Фактичний бюджет 456 000 грн на 8.5% менший за допущення "~500 000 грн" з Лаби 1, що підтверджує реалістичність початкових оцінок.</li>
+                        <li style="margin: 10px 0;">✅ <strong>Оптимізація інфраструктури (-25%):</strong>
+                            <ul style="padding-left: 30px; margin-top: 5px;">
+                                <li>Використання AWS Free Tier перші 12 місяців</li>
+                                <li>Cloudinary Free Plan (10 GB + 25k трансформацій)</li>
+                                <li>GitHub Actions (2000 безкоштовних хвилин CI/CD)</li>
+                            </ul>
+                        </li>
+                        <li style="margin: 10px 0;">⚠️ <strong>Ризик зменшення резервного фонду:</strong> Скорочення на 43.5% (з 65 000 до 36 700 грн) створює ризик недофінансування при реалізації критичних ризиків. Рекомендується зберегти хоча б 50 000 грн.</li>
+                        <li style="margin: 10px 0;">✅ <strong>Збереження якості:</strong> Зарплатний фонд залишився незмінним (286 000 грн), що гарантує мотивацію команди та якість розробки.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- РОЗДІЛ 2 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="section-number">2</span>
+                    Аналіз критичного шляху проекту (Таблиця 4.2)
+                </h2>
+                
+                <div class="subsection">
+                    <h3>2.1. Розподіл термінів та бюджету по фазах</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Фаза</th>
+                                <th>Тривалість (тиж)</th>
+                                <th>% від проекту</th>
+                                <th>Бюджет (грн)</th>
+                                <th>% бюджету</th>
+                                <th>Критичність</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1. Аналіз та Проектування</td>
+                                <td>4</td>
+                                <td>15.4%</td>
+                                <td>40 000</td>
+                                <td>8.8%</td>
+                                <td><span class="status-badge status-danger">Критична</span></td>
+                            </tr>
+                            <tr>
+                                <td>2. UX/UI Дизайн</td>
+                                <td>5</td>
+                                <td>19.2%</td>
+                                <td>35 000</td>
+                                <td>7.7%</td>
+                                <td><span class="status-badge status-warning">Некритична</span></td>
+                            </tr>
+                            <tr>
+                                <td>3. Розробка ПЗ</td>
+                                <td>14</td>
+                                <td>53.8%</td>
+                                <td>286 000</td>
+                                <td>62.7%</td>
+                                <td><span class="status-badge status-danger">Критична</span></td>
+                            </tr>
+                            <tr>
+                                <td>4. Тестування та Стабілізація</td>
+                                <td>4</td>
+                                <td>15.4%</td>
+                                <td>50 000</td>
+                                <td>11.0%</td>
+                                <td><span class="status-badge status-danger">Критична</span></td>
+                            </tr>
+                            <tr>
+                                <td>5. Розгортання та Запуск</td>
+                                <td>3</td>
+                                <td>11.5%</td>
+                                <td>89 000</td>
+                                <td>19.5%</td>
+                                <td><span class="status-badge status-danger">Критична</span></td>
+                            </tr>
+                            <tr style="font-weight: bold; background: #f8f9fa;">
+                                <td>ВСЬОГО (без PM)</td>
+                                <td>30</td>
+                                <td>100%</td>
+                                <td>500 000</td>
+                                <td>100%</td>
+                                <td>—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Рисунок 3 – Критичний шлях проекту (Ганта-подібна діаграма)</div>
+                        <div id="criticalPathChart"></div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Рисунок 4 – Розподіл бюджету по фазах критичного шляху</div>
+                        <div id="budgetByPhaseChart"></div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>2.2. Ключові висновки по критичному шляху</h3>
+                    
+                    <div class="risk-item risk-critical">
+                        <h4 style="color: #dc3545; margin-bottom: 10px;">🔴 Критичні точки уваги:</h4>
+                        <ol style="padding-left: 20px;">
+                            <li style="margin: 10px 0;"><strong>Фаза 3 "Розробка" (14 тижнів, 286 000 грн):</strong>
+                                <ul style="padding-left: 20px; margin-top: 5px;">
+                                    <li>Займає 53.8% загального часу та 62.7% бюджету</li>
+                                    <li>Найбільш ризикова через паралельну роботу Backend, Frontend та Mobile команд</li>
+                                    <li>Затримка на 1 тиждень = зрив всього проекту (резерви відсутні)</li>
+                                    <li><strong>Рекомендація:</strong> Щотижневий контроль прогресу, daily standups</li>
+                                </ul>
+                            </li>
+                            <li style="margin: 10px 0;"><strong>Задачі на критичному шляху:</strong>
+                                <ul style="padding-left: 20px; margin-top: 5px;">
+                                    <li>1.2.2 Проектування REST API (1 тиж) → блокує всю розробку</li>
+                                    <li>3.1.3 Бізнес-логіка (Бронювання, Фінанси) (3 тиж) → найскладніша задача</li>
+                                    <li>3.4.1 Розробка Mobile (5 тиж) → довга публікація в сторах</li>
+                                    <li>5.2.2 Публікація в App Store/Google Play (2 тиж) → неконтрольована модерація</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                    
+                    <div class="risk-item risk-high">
+                        <h4 style="color: #fd7e14; margin-bottom: 10px;">🟠 Фінансова асиметрія:</h4>
+                        <p><strong>Парадокс:</strong> Фаза 5 "Запуск" займає лише 11.5% часу, але споживає 19.5% бюджету (89 000 грн).</p>
+                        <p style="margin-top: 10px;"><strong>Причини:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 5px;">
+                            <li>Одноразові витрати на акаунти Apple Developer (99$/рік) та Google Play (25$ одноразово)</li>
+                            <li>Початок маркетингових витрат (реклама, SMM) - 56 000 грн</li>
+                            <li>Налаштування продуктового VPS та оплата на 6 міс наперед</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>Рекомендація:</strong> Закласти ці витрати як "капітальні" в бюджеті, оскільки вони забезпечують дохід у фазі експлуатації.</p>
+                    </div>
+                    
+                    <div class="risk-item risk-medium">
+                        <h4 style="color: #ffc107; margin-bottom: 10px;">🟡 Некритичні фази з резервами:</h4>
+                        <p><strong>Фаза 2 "UX/UI Дизайн":</strong> Не лежить на критичному шляху. Має резерв часу ~1-2 тижні.</p>
+                        <p style="margin-top: 10px;"><strong>Обґрунтування:</strong> Дизайн може виконуватися паралельно з початковою розробкою Backend API. Frontend розпочинається після завершення дизайну, але Backend може йти вперед.</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>2.3. Порівняння з допущеннями</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Допущення з Лаби 2</th>
+                                <th>Фактичний результат (Критичний шлях)</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Команда part-time (4 год/день)</td>
+                                <td>Підтверджено: 1405 год / 182 дні = 7.7 год/день на всю команду (6 осіб × ~1.3 год/день/особу)</td>
+                                <td><span class="status-badge status-success">Відповідає</span></td>
+                            </tr>
+                            <tr>
+                                <td>Доступність безкоштовних інструментів (Figma, GitHub)</td>
+                                <td>Підтверджено: Використання Free Tier зекономило 10 200 грн на інфраструктурі</td>
+                                <td><span class="status-badge status-success">Підтверджено</span></td>
+                            </tr>
+                            <tr>
+                                <td>Технічна складність інтеграцій не вища за середню</td>
+                                <td>Ризик: Інтеграція KYC (BankID/Дія) та платіжних систем оцінена в 4 тижні - це 15% критичного шляху</td>
+                                <td><span class="status-badge status-warning">Потребує уваги</span></td>
+                            </tr>
+                            <tr>
+                                <td>CAC (вартість залучення клієнта) ≤ 300 грн</td>
+                                <td>Закладено 56 000 грн маркетингу на 3000 користувачів = 18.7 грн/особу (значно нижче допущення)</td>
+                                <td><span class="status-badge status-success">Оптимістично</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- РОЗДІЛ 3 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="section-number">3</span>
+                    Аналіз ризиків та зони високого ризику
+                </h2>
+                
+                <div class="subsection">
+                    <h3>3.1. Матриця ідентифікованих ризиків</h3>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Рисунок 5 – Матриця ризиків "Ймовірність × Вплив"</div>
+                        <div id="riskMatrixChart"></div>
+                    </div>
+                    
+                    <table class="comparison-table" style="margin-top: 30px;">
+                        <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>Ризик</th>
+                                <th>Ймовірність</th>
+                                <th>Вплив</th>
+                                <th>Зона</th>
+                                <th>Пріоритет</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>R1</td>
+                                <td>Зрив термінів через навчальне навантаження команди</td>
+                                <td>0.8-1.0</td>
+                                <td>0.8</td>
+                                <td style="background: #dc3545; color: white;">Катастрофічна</td>
+                                <td><strong>1 (Критичний)</strong></td>
+                            </tr>
+                            <tr>
+                                <td>R2</td>
+                                <td>Проблеми з інтеграцією платіжних систем</td>
+                                <td>0.6-0.8</td>
+                                <td>0.8</td>
+                                <td style="background: #dc3545; color: white;">Катастрофічна</td>
+                                <td><strong>2 (Критичний)</strong></td>
+                            </tr>
+                            <tr>
+                                <td>R3</td>
+                                <td>Дефіцит бюджету</td>
+                                <td>0.4-0.6</td>
+                                <td>0.8</td>
+                                <td style="background: #fd7e14; color: white;">Висока</td>
+                                <td><strong>3 (Високий)</strong></td>
+                            </tr>
+                            <tr>
+                                <td>R4</td>
+                                <td>Технічні помилки в архітектурі</td>
+                                <td>0.4-0.6</td>
+                                <td>0.6</td>
+                                <td style="background: #fd7e14; color: white;">Висока</td>
+                                <td>4 (Високий)</td>
+                            </tr>
+                            <tr>
+                                <td>R5</td>
+                                <td>Низький інтерес цільової аудиторії</td>
+                                <td>0.2-0.4</td>
+                                <td>0.8</td>
+                                <td style="background: #ffc107;">Середня</td>
+                                <td>5 (Середній)</td>
+                            </tr>
+                            <tr>
+                                <td>R6</td>
+                                <td>Зміни законодавства щодо P2P оренди</td>
+                                <td>0.2-0.4</td>
+                                <td>0.6</td>
+                                <td style="background: #ffc107;">Середня</td>
+                                <td>6 (Середній)</td>
+                            </tr>
+                            <tr>
+                                <td>R7</td>
+                                <td>Технічні проблеми з публікацією в App Store</td>
+                                <td>0.2-0.4</td>
+                                <td>0.4</td>
+                                <td style="background: #28a745; color: white;">Низька</td>
+                                <td>7 (Низький)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="subsection">
+                    <h3>3.2. Детальний аналіз критичних ризиків</h3>
+                    
+                    <div class="risk-item risk-critical">
+                        <h4 style="color: #dc3545;">🔴 R1: Зрив термінів через навчальне навантаження (Ймовірність: 90%, Вплив: 80%)</h4>
+                        
+                        <p style="margin: 15px 0;"><strong>Обґрунтування високої ймовірності:</strong></p>
+                        <ul style="padding-left: 20px;">
+                            <li>Команда складається зі студентів 4 курсу (part-time робота)</li>
+                            <li>Проект перетинається з екзаменаційною сесією (грудень-січень, травень-червень)</li>
+                            <li>Середнє навантаження: 4-5 год/день на проект при 8 год/день на навчання</li>
+                            <li>Відсутність досвіду комерційної розробки у більшості команди</li>
+                        </ul>
+                        
+                        <p style="margin: 15px 0;"><strong>Вплив на проект:</strong></p>
+                        <ul style="padding-left: 20px;">
+                            <li>Зрив на 2-4 тижні = додаткові 40 000-80 000 грн витрат (інфраструктура + зарплати)</li>
+                            <li>Втрата "вікна можливості" на ринку (конкуренти запустяться швидше)</li>
+                            <li>Зниження мотивації команди через затяжний розвиток</li>
+                        </ul>
+                        
+                        <p style="margin: 15px 0; padding: 15px; background: #fff3cd; border-left: 5px solid #ffc107; border-radius: 5px;">
+                            <strong>⚠️ Превентивні заходи:</strong><br>
+                            1. Планування спринтів з урахуванням академічного календаря (відомості про екзамени на +2 тиж раніше)<br>
+                            2. Буфер 20-30% в оцінках часу для некритичних задач<br>
+                            3. Жорстка пріоритизація за MoSCoW (зосередження на Must Have функціях)<br>
+                            4. Щоденні короткі стендапи (15 хв) для виявлення блокерів<br>
+                            5. Автоматизація рутинних задач (CI/CD, тестування, деплой)
+                        </p>
+                        
+                        <p style="margin: 15px 0; padding: 15px; background: #f8d7da; border-left: 5px solid #dc3545; border-radius: 5px;">
+                            <strong>🚨 План реагування при настанні:</strong><br>
+                            1. Негайне скорочення обсягу (Descoping) - виключення Could Have функцій<br>
+                            2. Перерозподіл критичних задач на Tech Lead або найбільш вільних розробників<br>
+                            3. Використання "Авральний режим" (crashing) обережно та не більше 2 тижнів<br>
+                            4. Розгляд можливості залучення 1 додаткового розробника-фрілансера на критичних ділянках (додатково 30-50k грн)
+                        </p>
+                    </div>
+                    
+                    <div class="risk-item risk-critical">
+                        <h4 style="color: #dc3545;">🔴 R2: Проблеми з інтеграцією платіжних систем (Ймовірність: 70%, Вплив: 80%)</h4>
+                        
+                        <p style="margin: 15px 0;"><strong>Обґрунтування:</strong></p>
+                        <ul style="padding-left: 20px;">
+                            <li>Задача 3.2.1 (Інтеграція LiqPay/Fondy) лежить на критичному шляху - 2 тижні</li>
+                            <li>Функція холдування (hold) коштів підтримується не всіма провайдерами</li>
+                            <li>Складна логіка: оплата оренди + заморожування депозиту + автовиплата після закінчення</li>
+                            <li>Вимагає додаткових юридичних узгоджень з банком-еквайером</li>
+                        </ul>
+                        
+                        <p style="margin: 15px 0;"><strong>Сценарії ризику:</strong></p>
+                        <ol style="padding-left: 20px;">
+                            <li style="margin: 10px 0;"><strong>Сценарій А (Ймовірність 40%):</strong> LiqPay/Fondy не підтримують hold у повному обсязі
+                                <ul style="padding-left: 20px; margin-top: 5px;">
+                                    <li><strong>Рішення:</strong> Перехід на Stripe (міжнародний, підтримує Preauthorization), але +1 тиждень на інтеграцію та +15% комісія</li>
+                                </ul>
+                            </li>
+                            <li style="margin: 10px 0;"><strong>Сценарій Б (Ймовірність 30%):</strong> Проблеми з верифікацією ФОП для отримання виплат (KYC для орендодавців)
+                                <ul style="padding-left: 20px; margin-top: 5px;">
+                                    <li><strong>Рішення:</strong> Спрощена схема для MVP - виплати тільки на приватну картку (без ФОП), обмеження до 150 000 грн/рік</li>
+                                </ul>
+                            </li>
+                        </ol>
+                        
+                        <p style="margin: 15px 0; padding: 15px; background: #fff3cd; border-left: 5px solid #ffc107; border-radius: 5px;">
+                            <strong>⚠️ Превентивні заходи:</strong><br>
+                            1. Дослідження можливостей провайдерів ЩЕ на Фазі 1 (Проектування API)<br>
+                            2. Sandbox-тестування hold-функції до початку розробки<br>
+                            3. Створення abstraction layer для платіжного провайдера (можливість швидкої заміни)<br>
+                            4. Консультація з юристом щодо договорів з платіжними системами
+                        </p>
+                    </div>
+                    
+                    <div class="risk-item risk-high">
+                        <h4 style="color: #fd7e14;">🟠 R3: Дефіцит бюджету (Ймовірність: 50%, Вплив: 80%)</h4>
+                        
+                        <p style="margin: 15px 0;"><strong>Критичний момент:</strong> Резервний фонд скорочено з 65 000 до 36 700 грн (-43.5%).</p>
+                        
+                        <p style="margin: 15px 0;"><strong>Сценарії перевитрати:</strong></p>
+                        <ul style="padding-left: 20px;">
+                            <li>Затримка проекту на 1 міс = додатково ~80 000 грн (зарплати + інфраструктура)</li>
+                            <li>Залучення фрілансера для критичної задачі = 30-50 000 грн</li>
+                            <li>Збільшення маркетингового бюджету (якщо CAC виявиться вищим) = +20-30 000 грн</li>
+                        </ul>
+                        
+                        <div class="chart-container">
+                            <div class="chart-title">Рисунок 6 – Сценарії бюджету з урахуванням ризиків</div>
+                            <div id="budgetScenariosChart"></div>
+                        </div>
+                        
+                        <p style="margin: 15px 0; padding: 15px; background: #d4edda; border-left: 5px solid #28a745; border-radius: 5px;">
+                            <strong>✅ Рекомендації:</strong><br>
+                            1. Відновити резервний фонд до 50 000 грн (знайти додаткові 13 300 грн)<br>
+                            2. Розглянути можливість отримання гранту для стартапів (українські фонди, IT-акселератори)<br>
+                            3. Залучити ментора-інвестора на етапі MVP (можливість вкладення 100-200k грн за частку в проекті)
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>3.3. Зведена таблиця мітигації ризиків</h3>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Ризик</th>
+                                <th>Стратегія</th>
+                                <th>Відповідальний</th>
+                                <th>Вартість мітигації</th>
+                                <th>Терміни</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>R1: Зрив термінів</td>
+                                <td>Зниження (Буфери, Agile)</td>
+                                <td>Project Manager</td>
+                                <td>0 грн (в межах бюджету)</td>
+                                <td>Постійно, весь проект</td>
+                            </tr>
+                            <tr>
+                                <td>R2: Платіжні інтеграції</td>
+                                <td>Зниження + Прийняття</td>
+                                <td>Backend Developer</td>
+                                <td>До 10 000 грн (консультації)</td>
+                                <td>Тиждень 8-10</td>
+                            </tr>
+                            <tr>
+                                <td>R3: Дефіцит бюджету</td>
+                                <td>Трансфер ризику (інвестор)</td>
+                                <td>CEO (Засновник)</td>
+                                <td>Частка в проекті 10-15%</td>
+                                <td>До тижня 12</td>
+                            </tr>
+                            <tr>
+                                <td>R4: Технічні помилки</td>
+                                <td>Зниження (Code Review, QA)</td>
+                                <td>Tech Lead</td>
+                                <td>0 грн (в межах бюджету QA)</td>
+                                <td>Тиждень 1-26</td>
+                            </tr>
+                            <tr>
+                                <td>R5: Низький інтерес ЦА</td>
+                                <td>Прийняття + Pivot</td>
+                                <td>Marketing Lead (PM)</td>
+                                <td>До 20 000 грн (додатковий маркетинг)</td>
+                                <td>Після запуску (тиждень 27+)</td>
+                            </tr>
+                            <tr>
+                                <td>R6: Зміни законодавства</td>
+                                <td>Моніторинг + Прийняття</td>
+                                <td>Юрист (Аутсорс)</td>
+                                <td>5 000 грн (консультації)</td>
+                                <td>Тиждень 1, 15, 26</td>
+                            </tr>
+                            <tr>
+                                <td>R7: App Store модерація</td>
+                                <td>Зниження (Guidelines)</td>
+                                <td>Mobile Developer</td>
+                                <td>0 грн</td>
+                                <td>Тиждень 24-26</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- ЗАГАЛЬНИЙ ВИСНОВОК -->
+            <div class="conclusion-box">
+                <h2>🎯 ЗАГАЛЬНИЙ ВИСНОВОК</h2>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px;">Підтвердження життєздатності проекту:</h3>
+                <ul>
+                    <li><strong>Часові обмеження підтверджені:</strong> Фактична тривалість 26 тижнів (182 дні) повністю відповідає директивному терміну 6 місяців з відхиленням лише +1.1%.</li>
+                    <li><strong>Фінансові допущення реалістичні:</strong> Оптимізований бюджет 456 000 грн на 8.5% менший за початкове допущення ~500 000 грн, що підтверджує якість планування.</li>
+                    <li><strong>Критичний шлях визначено:</strong> Фаза 3 "Розробка" (53.8% часу, 62.7% бюджету) є найбільш критичною та вимагає пильного контролю.</li>
+                    <li><strong>Ризики ідентифіковані та керовані:</strong> 2 критичні ризики (зрив термінів, платіжні інтеграції) мають чіткі плани мітігації.</li>
+                </ul>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px;">Ключові рекомендації для успіху:</h3>
+                <ul>
+                    <li>Відновити резервний фонд до мінімум 50 000 грн для покриття критичних ризиків</li>
+                    <li>Впровадити Agile-методологію з 2-тижневими спринтами та щоденними стендапами</li>
+                    <li>Провести sandbox-тестування платіжних провайдерів НА ПОЧАТКУ Фази 1 (не відкладати)</li>
+                    <li>Розглянути залучення ментора-інвестора для зменшення фінансових ризиків</li>
+                    <li>Створити "вікна тестування" з реальними користувачами після 18 тижня розробки</li>
+                </ul>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px;">Прогноз успішності:</h3>
+                <p style="font-size: 1.2em; margin-top: 15px;">
+                    <strong>При дотриманні плану та впровадженні рекомендацій з управління ризиками, ймовірність успішного запуску MVP у встановлені терміни оцінюється на рівні 75-80%.</strong>
+                </p>
+                
+                <p style="margin-top: 20px; font-style: italic;">
+                    Проект має всі шанси стати успішним стартапом за умови дисципліни команди, ефективного управління та гнучкості у прийнятті рішень.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Графік 1: Порівняння термінів по фазах
+        const timeData = [{
+            x: ['Фаза 1', 'Фаза 2', 'Фаза 3', 'Фаза 4', 'Фаза 5'],
+            y: [4, 5, 16, 4, 3],
+            name: 'План (допущення)',
+            type: 'bar',
+            marker: { color: '#764ba2' }
+        }, {
+            x: ['Фаза 1', 'Фаза 2', 'Фаза 3', 'Фаза 4', 'Фаза 5'],
+            y: [4, 5, 14, 4, 3],
+            name: 'Факт (критичний шлях)',
+            type: 'bar',
+            marker: { color: '#667eea' }
+        }];
+        
+        const timeLayout = {
+            title: '',
+            xaxis: { title: 'Фази проекту' },
+            yaxis: { title: 'Тривалість (тижні)' },
+            barmode: 'group',
+            showlegend: true
+        };
+        
+        Plotly.newPlot('timeComparisonChart', timeData, timeLayout, {responsive: true});
+        
+        // Графік 2: Порівняння бюджету
+        const budgetData = [{
+            labels: ['Зарплати', 'Інфраструктура', 'Маркетинг', 'Юридичні', 'Резерв', 'Оренда'],
+            values: [286000, 40500, 56000, 27000, 65000, 20000],
+            name: 'План',
+            type: 'pie',
+            hole: 0.4,
+            marker: {
+                colors: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a']
+            },
+            domain: {column: 0},
+            textinfo: 'label+percent',
+            textposition: 'auto'
+        }, {
+            labels: ['Зарплати', 'Інфраструктура', 'Маркетинг', 'Юридичні', 'Резерв', 'Оренда'],
+            values: [286000, 30300, 56000, 27000, 36700, 20000],
+            name: 'Факт',
+            type: 'pie',
+            hole: 0.4,
+            marker: {
+                colors: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a']
+            },
+            domain: {column: 1},
+            textinfo: 'label+percent',
+            textposition: 'auto'
+        }];
+        
+        const budgetLayout = {
+            title: '',
+            grid: {rows: 1, columns: 2},
+            annotations: [
+                {
+                    text: 'План<br>494 500₴',
+                    x: 0.20,
+                    y: 0.5,
+                    font: {size: 16, color: '#667eea'},
+                    showarrow: false
+                },
+                {
+                    text: 'Факт<br>456 000₴',
+                    x: 0.80,
+                    y: 0.5,
+                    font: {size: 16, color: '#764ba2'},
+                    showarrow: false
+                }
+            ],
+            showlegend: false
+        };
+        
+        Plotly.newPlot('budgetComparisonChart', budgetData, budgetLayout, {responsive: true});
+        
+        // Графік 3: Критичний шлях (Ганта-подібна діаграма)
+        const ganttData = [{
+            x: [4, 5, 14, 4, 3],
+            y: ['Фаза 5: Запуск', 'Фаза 4: Тестування', 'Фаза 3: Розробка', 'Фаза 2: Дизайн', 'Фаза 1: Аналіз'],
+            type: 'bar',
+            orientation: 'h',
+            marker: {
+                color: ['#dc3545', '#dc3545', '#dc3545', '#ffc107', '#dc3545'],
+                line: { color: '#2c3e50', width: 2 }
+            },
+            text: ['3 тиж (Критична)', '4 тиж (Критична)', '14 тиж (МАКСИМАЛЬНО КРИТИЧНА)', '5 тиж (Некритична)', '4 тиж (Критична)'],
+            textposition: 'auto',
+            textfont: { color: 'white', size: 12 }
+        }];
+        
+        const ganttLayout = {
+            title: '',
+            xaxis: { title: 'Тривалість (тижні)', range: [0, 16] },
+            yaxis: { title: '' },
+            showlegend: false
+        };
+        
+        Plotly.newPlot('criticalPathChart', ganttData, ganttLayout, {responsive: true});
+        
+        // Графік 4: Розподіл бюджету по фазах
+        const phasesBudgetData = [{
+            x: ['Фаза 1', 'Фаза 2', 'Фаза 3', 'Фаза 4', 'Фаза 5'],
+            y: [40000, 35000, 286000, 50000, 89000],
+            type: 'bar',
+            marker: {
+                color: ['#667eea', '#ffc107', '#dc3545', '#fd7e14', '#764ba2'],
+                line: { color: '#2c3e50', width: 2 }
+            },
+            text: ['8.8%', '7.7%', '62.7%', '11.0%', '19.5%'],
+            textposition: 'auto',
+            textfont: { color: 'white', size: 14, weight: 'bold' }
+        }];
+        
+        const phasesBudgetLayout = {
+            title: '',
+            xaxis: { title: 'Фази проекту' },
+            yaxis: { title: 'Бюджет (грн)' },
+            showlegend: false
+        };
+        
+        Plotly.newPlot('budgetByPhaseChart', phasesBudgetData, phasesBudgetLayout, {responsive: true});
+        
+        // Графік 5: Матриця ризиків
+        const riskData = [{
+            x: [0.4, 0.8, 0.8, 0.6, 0.8, 0.6, 0.4],
+            y: [0.3, 0.9, 0.7, 0.5, 0.3, 0.3, 0.3],
+            mode: 'markers+text',
+            type: 'scatter',
+            text: ['R7', 'R1', 'R2', 'R4', 'R5', 'R6', 'R3'],
+            textposition: 'middle center',
+            textfont: { size: 14, color: 'white', weight: 'bold' },
+            marker: {
+                size: [30, 45, 45, 35, 35, 30, 40],
+                color: ['#28a745', '#dc3545', '#dc3545', '#fd7e14', '#ffc107', '#ffc107', '#fd7e14'],
+                line: { color: 'white', width: 2 }
+            }
+        }];
+        
+        const riskLayout = {
+            title: '',
+            xaxis: { 
+                title: 'Вплив на проект (0-1)',
+                range: [0, 1],
+                gridcolor: '#e9ecef'
+            },
+            yaxis: { 
+                title: 'Ймовірність виникнення (0-1)',
+                range: [0, 1],
+                gridcolor: '#e9ecef'
+            },
+            shapes: [
+                // Зона низького ризику (зелена)
+                {
+                    type: 'rect',
+                    x0: 0, y0: 0, x1: 0.4, y1: 0.4,
+                    fillcolor: '#d4edda',
+                    opacity: 0.3,
+                    line: { width: 0 }
+                },
+                // Зона середнього ризику (жовта)
+                {
+                    type: 'rect',
+                    x0: 0.4, y0: 0, x1: 0.7, y1: 0.7,
+                    fillcolor: '#fff3cd',
+                    opacity: 0.3,
+                    line: { width: 0 }
+                },
+                // Зона високого ризику (помаранчева)
+                {
+                    type: 'rect',
+                    x0: 0.7, y0: 0, x1: 1, y1: 1,
+                    fillcolor: '#f8d7da',
+                    opacity: 0.3,
+                    line: { width: 0 }
+                },
+                // Зона катастрофічного ризику (червона)
+                {
+                    type: 'rect',
+                    x0: 0.7, y0: 0.7, x1: 1, y1: 1,
+                    fillcolor: '#dc3545',
+                    opacity: 0.2,
+                    line: { width: 0 }
+                }
+            ],
+            annotations: [
+                {text: 'Низький ризик', x: 0.2, y: 0.2, showarrow: false, font: {size: 12, color: '#28a745'}},
+                {text: 'Середній ризик', x: 0.55, y: 0.35, showarrow: false, font: {size: 12, color: '#ffc107'}},
+                {text: 'Високий ризик', x: 0.85, y: 0.5, showarrow: false, font: {size: 12, color: '#fd7e14'}},
+                {text: 'КРИТИЧНИЙ', x: 0.85, y: 0.85, showarrow: false, font: {size: 14, color: '#dc3545', weight: 'bold'}}
+            ],
+            showlegend: false
+        };
+        
+        Plotly.newPlot('riskMatrixChart', riskData, riskLayout, {responsive: true});
+        
+        // Графік 6: Сценарії бюджету
+        const scenariosData = [{
+            x: ['Базовий<br>сценарій', 'Затримка<br>1 міс', 'Затримка<br>+ фріланс', 'Затримка<br>+ маркетинг'],
+            y: [456000, 536000, 586000, 616000],
+            type: 'bar',
+            marker: {
+                color: ['#28a745', '#ffc107', '#fd7e14', '#dc3545'],
+                line: { color: '#2c3e50', width: 2 }
+            },
+            text: ['456k₴<br>(План)', '536k₴<br>(+18%)', '586k₴<br>(+29%)', '616k₴<br>(+35%)'],
+            textposition: 'auto',
+            textfont: { color: 'white', size: 13, weight: 'bold' }
+        }];
+        
+        const scenariosLayout = {
+            title: '',
+            xaxis: { title: 'Сценарії розвитку проекту' },
+            yaxis: { title: 'Загальний бюджет (грн)', range: [0, 700000] },
+            shapes: [{
+                type: 'line',
+                x0: -0.5,
+                y0: 494500,
+                x1: 3.5,
+                y1: 494500,
+                line: {
+                    color: '#667eea',
+                    width: 3,
+                    dash: 'dash'
+                }
+            }],
+            annotations: [{
+                x: 3.5,
+                y: 494500,
+                xanchor: 'left',
+                text: 'Початкове допущення (494.5k)',
+                showarrow: false,
+                font: { color: '#667eea', size: 12 }
+            }],
+            showlegend: false
+        };
+        
+        Plotly.newPlot('budgetScenariosChart', scenariosData, scenariosLayout, {responsive: true});
+    </script>
+</body>
+</html>
